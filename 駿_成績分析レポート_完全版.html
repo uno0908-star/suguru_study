@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>神田 駿 ー 成績分析レポート</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Noto+Serif+JP:wght@400;700&display=swap');
+
+:root {
+  --bg: #f7f5f0;
+  --surface: #ffffff;
+  --surface2: #f0ede8;
+  --navy: #1a2744;
+  --navy-light: #2c3e6b;
+  --accent: #1a6bbf;
+  --accent-light: #e8f1fb;
+  --red: #c0392b;
+  --red-light: #fdf0ef;
+  --orange: #d35400;
+  --orange-light: #fef4ee;
+  --green: #1e7e4e;
+  --green-light: #eaf7f0;
+  --gold: #b8860b;
+  --gold-light: #fdf8e8;
+  --text: #1a1a2e;
+  --text-muted: #6b7280;
+  --border: #e5e0d8;
+  --shadow: rgba(26, 39, 68, 0.08);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ヘッダー */
+.header {
+  background: var(--navy);
+  color: #fff;
+  padding: 2.5rem 2rem 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent), #5ba3e8, var(--accent));
+}
+.header-meta {
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.55);
+  margin-bottom: 0.6rem;
+  text-transform: uppercase;
+}
+.header-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  margin-bottom: 0.4rem;
+}
+.header-title span { color: #7db9e8; }
+.header-sub {
+  font-size: 0.8rem;
+  color: rgba(255,255,255,0.5);
+}
+
+/* レイアウト */
+.container {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* セクション */
+.section {
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  padding: 1.8rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 12px var(--shadow);
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1.4rem;
+  padding-bottom: 0.8rem;
+  border-bottom: 1px solid var(--border);
+}
+.section-num {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: var(--navy);
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.section-title {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--navy);
+  letter-spacing: 0.04em;
+}
+.section-note {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+/* サマリーカード */
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+.summary-card {
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 1.1rem;
+  border-left: 3px solid var(--border);
+}
+.summary-card.alert { border-left-color: var(--red); background: var(--red-light); }
+.summary-card.warn  { border-left-color: var(--orange); background: var(--orange-light); }
+.summary-card.good  { border-left-color: var(--green); background: var(--green-light); }
+.summary-card.info  { border-left-color: var(--accent); background: var(--accent-light); }
+.sc-label { font-size: 0.72rem; color: var(--text-muted); margin-bottom: 0.3rem; }
+.sc-value { font-size: 1.6rem; font-weight: 900; line-height: 1; margin-bottom: 0.2rem; }
+.sc-value.red    { color: var(--red); }
+.sc-value.orange { color: var(--orange); }
+.sc-value.green  { color: var(--green); }
+.sc-value.blue   { color: var(--accent); }
+.sc-note { font-size: 0.7rem; color: var(--text-muted); }
+
+/* 科目推移テーブル */
+.score-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+.score-table th {
+  background: var(--navy);
+  color: rgba(255,255,255,0.85);
+  padding: 0.6rem 0.5rem;
+  text-align: center;
+  font-weight: 500;
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+}
+.score-table th.left { text-align: left; padding-left: 1rem; }
+.score-table td {
+  padding: 0.55rem 0.5rem;
+  text-align: center;
+  border-bottom: 1px solid var(--border);
+}
+.score-table td.subj {
+  text-align: left;
+  padding-left: 1rem;
+  font-weight: 700;
+  color: var(--navy);
+  white-space: nowrap;
+}
+.score-table td.avg { color: var(--text-muted); font-size: 0.7rem; }
+.score-table tr:last-child td { border-bottom: none; }
+.score-table tr:nth-child(even) td { background: #fafaf8; }
+.score-table tr.total-row td {
+  background: var(--navy-light) !important;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.chip {
+  display: inline-block;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+.chip-red    { background: var(--red-light); color: var(--red); }
+.chip-orange { background: var(--orange-light); color: var(--orange); }
+.chip-green  { background: var(--green-light); color: var(--green); }
+.chip-blue   { background: var(--accent-light); color: var(--accent); }
+
+/* Canvas グラフ */
+.chart-wrap {
+  position: relative;
+  margin: 1rem 0 0.5rem;
+}
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin-top: 0.8rem;
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.legend-dot {
+  width: 10px; height: 3px;
+  border-radius: 2px;
+  display: block;
+}
+
+/* 目標ゲージ */
+.goal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+}
+.goal-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.2rem;
+}
+.goal-card.pub { border-top: 3px solid var(--accent); }
+.goal-card.prv { border-top: 3px solid var(--orange); }
+.goal-school { font-family: 'Noto Serif JP', serif; font-size: 1rem; font-weight: 700; margin-bottom: 0.1rem; }
+.goal-type { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0.8rem; }
+.goal-row { display: flex; justify-content: space-between; font-size: 0.78rem; margin-bottom: 0.3rem; }
+.goal-row .label { color: var(--text-muted); }
+.goal-row .val { font-weight: 700; }
+.goal-bar-track { height: 10px; background: var(--surface2); border-radius: 5px; margin: 0.6rem 0; overflow: hidden; }
+.goal-bar-fill { height: 100%; border-radius: 5px; }
+.goal-msg { font-size: 0.72rem; margin-top: 0.5rem; font-weight: 700; }
+.goal-msg.ok { color: var(--green); }
+.goal-msg.try { color: var(--orange); }
+
+/* 要点リスト */
+.advice-list { list-style: none; }
+.advice-list li {
+  padding: 0.9rem 1rem;
+  margin-bottom: 0.7rem;
+  border-radius: 8px;
+  display: flex;
+  gap: 0.8rem;
+  align-items: flex-start;
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+.advice-list li.lv1 { background: var(--red-light); border-left: 3px solid var(--red); }
+.advice-list li.lv2 { background: var(--orange-light); border-left: 3px solid var(--orange); }
+.advice-list li.lv3 { background: var(--gold-light); border-left: 3px solid var(--gold); }
+.advice-list li.lv4 { background: var(--green-light); border-left: 3px solid var(--green); }
+.advice-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 0.1rem; }
+.advice-title { font-weight: 700; display: block; margin-bottom: 0.25rem; font-size: 0.87rem; }
+
+/* スケジュール */
+.schedule-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+.schedule-table th {
+  background: var(--navy);
+  color: rgba(255,255,255,0.85);
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+  font-weight: 500;
+  font-size: 0.72rem;
+}
+.schedule-table td {
+  padding: 0.65rem 0.8rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.schedule-table tr:last-child td { border-bottom: none; }
+.schedule-table tr:nth-child(even) td { background: #fafaf8; }
+.day-cell { font-weight: 700; white-space: nowrap; color: var(--navy); }
+.tag {
+  display: inline-block;
+  padding: 0.1rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  margin-right: 0.3rem;
+  white-space: nowrap;
+}
+.tag-m { background: var(--accent-light); color: var(--accent); }
+.tag-e { background: var(--orange-light); color: var(--orange); }
+.tag-s { background: var(--green-light); color: var(--green); }
+.tag-r { background: var(--surface2); color: var(--text-muted); }
+
+/* ロードマップ */
+.roadmap { position: relative; padding-left: 2rem; }
+.roadmap::before {
+  content: '';
+  position: absolute;
+  left: 9px; top: 14px; bottom: 14px;
+  width: 2px;
+  background: linear-gradient(to bottom, var(--accent), var(--orange));
+}
+.rm-item { position: relative; margin-bottom: 1.3rem; }
+.rm-item:last-child { margin-bottom: 0; }
+.rm-dot {
+  position: absolute;
+  left: -2rem;
+  top: 5px;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  background: var(--accent);
+}
+.rm-dot.w { background: var(--orange); }
+.rm-dot.g { background: var(--green); }
+.rm-dot.n { background: var(--navy); }
+.rm-period {
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--accent);
+  margin-bottom: 0.2rem;
+}
+.rm-period.w { color: var(--orange); }
+.rm-period.g { color: var(--green); }
+.rm-period.n { color: var(--navy); }
+.rm-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.3rem; }
+.rm-body { font-size: 0.78rem; color: var(--text-muted); line-height: 1.7; }
+.rm-target {
+  display: inline-block;
+  background: var(--navy);
+  color: #fff;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.6rem;
+  border-radius: 4px;
+  margin: 0.3rem 0;
+}
+
+/* フッター */
+.footer-msg {
+  background: var(--navy);
+  color: rgba(255,255,255,0.9);
+  border-radius: 12px;
+  padding: 1.8rem;
+  margin-bottom: 2rem;
+  border-left: 4px solid #7db9e8;
+}
+.footer-msg h3 {
+  font-family: 'Noto Serif JP', serif;
+  font-size: 0.95rem;
+  margin-bottom: 0.8rem;
+  color: #7db9e8;
+}
+.footer-msg p {
+  font-size: 0.82rem;
+  line-height: 1.9;
+  color: rgba(255,255,255,0.8);
+}
+.footer-msg em { color: #7db9e8; font-style: normal; font-weight: 700; }
+
+@media (max-width: 600px) {
+  .goal-grid { grid-template-columns: 1fr; }
+  .summary-grid { grid-template-columns: 1fr 1fr; }
+  .section { padding: 1.2rem; }
+  .container { padding: 1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-meta">令和7年度（2025年度）吹田市立豊津中学校 中学1年 学年末</div>
+  <div class="header-title">神田 <span>駿</span> の成績分析レポート</div>
+  <div class="header-sub">1年2組 9番 ／ 担任：篠原 ちひろ先生 ／ 本レポートは保護者の方と一緒にご覧ください</div>
+</div>
+
+<div class="container">
+
+<!-- ① 現状サマリー -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">1</div>
+    <div class="section-title">現状サマリー</div>
+    <div class="section-note">学年末テスト時点</div>
+  </div>
+  <div class="summary-grid">
+    <div class="summary-card warn">
+      <div class="sc-label">5科目合計点数</div>
+      <div class="sc-value orange">204点</div>
+      <div class="sc-note">クラス平均 約298点</div>
+    </div>
+    <div class="summary-card alert">
+      <div class="sc-label">クラス平均との差</div>
+      <div class="sc-value red">−94点</div>
+      <div class="sc-note">主に英語・国語で大きく差が出ている</div>
+    </div>
+    <div class="summary-card alert">
+      <div class="sc-label">推定 偏差値</div>
+      <div class="sc-value red">37〜40</div>
+      <div class="sc-note">現時点での目安（5科合計より算出）</div>
+    </div>
+    <div class="summary-card good">
+      <div class="sc-label">学習態度評価</div>
+      <div class="sc-value green">◎</div>
+      <div class="sc-note">主体的姿勢「A」が多く内申に有利</div>
+    </div>
+  </div>
+</div>
+
+<!-- ② 定期テスト成績推移 -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">2</div>
+    <div class="section-title">定期テスト 科目別成績推移</div>
+    <div class="section-note">全4回分（1学期中間〜3学期学年末）</div>
+  </div>
+
+  <table class="score-table">
+    <thead>
+      <tr>
+        <th class="left">教科</th>
+        <th>1学期<br>中間</th>
+        <th>1学期<br>期末</th>
+        <th>2学期<br>中間</th>
+        <th>2学期<br>期末</th>
+        <th>3学期<br>学年末</th>
+        <th>推移</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="subj">国語</td>
+        <td>38</td><td>49</td><td>48</td><td>47</td>
+        <td><span class="chip chip-red">38点</span></td>
+        <td><span class="chip chip-red">▼低迷</span></td>
+      </tr>
+      <tr>
+        <td class="subj">社会</td>
+        <td>34</td><td>67</td><td>47</td><td>51</td>
+        <td><span class="chip chip-orange">41点</span></td>
+        <td><span class="chip chip-orange">△不安定</span></td>
+      </tr>
+      <tr>
+        <td class="subj">数学</td>
+        <td>46</td><td>40</td><td>30</td><td>42</td>
+        <td><span class="chip chip-blue">47点</span></td>
+        <td><span class="chip chip-blue">↗回復傾向</span></td>
+      </tr>
+      <tr>
+        <td class="subj">理科</td>
+        <td>43</td><td>58</td><td>24</td><td>42</td>
+        <td><span class="chip chip-blue">50点</span></td>
+        <td><span class="chip chip-blue">↗回復傾向</span></td>
+      </tr>
+      <tr>
+        <td class="subj">英語</td>
+        <td><strong style="color:var(--green)">82</strong></td><td>74</td><td>61</td><td>44</td>
+        <td><span class="chip chip-red">28点</span></td>
+        <td><span class="chip chip-red">▼▼急落</span></td>
+      </tr>
+      <tr class="total-row">
+        <td class="subj" style="color:#fff">5科合計</td>
+        <td>243</td><td>288</td><td>210</td><td>226</td>
+        <td>204</td>
+        <td>平均 約298</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="chart-wrap">
+    <canvas id="trendChart" height="220"></canvas>
+  </div>
+  <div class="chart-legend">
+    <div class="legend-item"><span class="legend-dot" style="background:#1a6bbf"></span>国語</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#d35400"></span>社会</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#8e44ad"></span>数学</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#1e7e4e"></span>理科</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#c0392b"></span>英語</div>
+    <div class="legend-item"><span class="legend-dot" style="background:#95a5a6;height:2px;border-top:1px dashed"></span>クラス平均（参考）</div>
+  </div>
+</div>
+
+<!-- ③ 目標校との距離 -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">3</div>
+    <div class="section-title">目標校との距離</div>
+    <div class="section-note">大阪府内の高校（コース・年度により変動あり）</div>
+  </div>
+  <div class="goal-grid">
+    <div class="goal-card pub">
+      <div class="goal-school">山田高校</div>
+      <div class="goal-type">公立 ／ 吹田市内 中堅校</div>
+      <div class="goal-row"><span class="label">目安偏差値</span><span class="val" style="color:var(--accent)">約 50〜52</span></div>
+      <div class="goal-row"><span class="label">5科合計目安</span><span class="val">約 250点以上</span></div>
+      <div class="goal-row"><span class="label">内申点目安</span><span class="val">オール3以上</span></div>
+      <div class="goal-bar-track">
+        <div class="goal-bar-fill" style="width:72%;background:linear-gradient(90deg,var(--accent),#5ba3e8)"></div>
+      </div>
+      <div class="goal-row"><span class="label">現状偏差値</span><span class="val" style="color:var(--red)">約38</span></div>
+      <div class="goal-msg ok">✓ 2年間しっかり取り組めば十分届きます</div>
+    </div>
+    <div class="goal-card prv">
+      <div class="goal-school">履正社高校</div>
+      <div class="goal-type">私立 ／ 進学コース目安</div>
+      <div class="goal-row"><span class="label">目安偏差値</span><span class="val" style="color:var(--orange)">約 52〜58</span></div>
+      <div class="goal-row"><span class="label">5科合計目安</span><span class="val">約 270点以上</span></div>
+      <div class="goal-row"><span class="label">内申点目安</span><span class="val">主要科目に4が複数</span></div>
+      <div class="goal-bar-track">
+        <div class="goal-bar-fill" style="width:62%;background:linear-gradient(90deg,var(--orange),#f39c12)"></div>
+      </div>
+      <div class="goal-row"><span class="label">現状偏差値</span><span class="val" style="color:var(--red)">約38</span></div>
+      <div class="goal-msg try">⚡ 本気で取り組めば届きます。英語の立て直しが鍵</div>
+    </div>
+  </div>
+  <div style="background:var(--accent-light);border:1px solid #c5d9f0;border-radius:8px;padding:0.9rem 1rem;margin-top:1rem;font-size:0.78rem;color:var(--navy);">
+    ※ 偏差値・合格ラインはコース・年度・入試形式によって変動します。最新情報は各校の学校説明会・塾の先生にご確認ください。内申点は大阪府公立では「3年間の評定合計」が重視されます。
+  </div>
+</div>
+
+<!-- ④ 教科別アドバイス -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">4</div>
+    <div class="section-title">教科別 重点アドバイス</div>
+    <div class="section-note">優先度順</div>
+  </div>
+  <ul class="advice-list">
+    <li class="lv1">
+      <span class="advice-icon">🔴</span>
+      <div>
+        <span class="advice-title">【最優先】英語 ― 1学期82点→学年末28点 急落</span>
+        英語塾に通っているにもかかわらず点数が下がり続けているのは、<strong>塾の内容と学校のテスト範囲がズレている可能性</strong>が高いです。まず塾の先生に「学校の定期テスト対策をお願いしたい」と相談することが先決です。<br>
+        中1文法（be動詞・一般動詞・can・疑問文・否定文・過去形）を春休み中に総復習してから中2の内容に入りましょう。単語は毎日10個コツコツ覚えるのが最も効果的です。
+      </div>
+    </li>
+    <li class="lv2">
+      <span class="advice-icon">🟠</span>
+      <div>
+        <span class="advice-title">【次点】国語 ― 38〜49点で安定しない</span>
+        漢字・語句・文法の「知識問題」は勉強すれば必ず点が取れる部分です。テスト前2週間から教科書の漢字を毎日10個練習するだけで15〜20点の底上げが見込めます。読解問題は本文に線を引きながら丁寧に読む習慣をつけましょう。
+      </div>
+    </li>
+    <li class="lv2">
+      <span class="advice-icon">🟠</span>
+      <div>
+        <span class="advice-title">【次点】社会 ― 1学期期末67点の実績あり、取り戻せる</span>
+        1学期期末に67点を取った実績があるので「できる教科」です。社会は純粋な暗記科目なので、週1回30分の振り返りをするだけで大幅に改善できます。テスト2週間前から地図・年表・語句を声に出して読むのが効果的です。
+      </div>
+    </li>
+    <li class="lv3">
+      <span class="advice-icon">🟡</span>
+      <div>
+        <span class="advice-title">【継続】数学・理科 ― 回復傾向あり、計算ミスをなくす</span>
+        数学は塾で基礎が定着しつつあります。40点台から50点台にあと一歩のところにいるので、<strong>テスト中の「見直し時間」を3分確保する</strong>だけで計算ミスが減り点数が上がるはずです。理科は2学期中間の落ち込みから学年末50点まで回復。このまま継続しましょう。
+      </div>
+    </li>
+    <li class="lv4">
+      <span class="advice-icon">✅</span>
+      <div>
+        <span class="advice-title">【強み】主体的な学習姿勢 ― 内申点に直結する評価</span>
+        通知表の「主体的に学習に取り組む態度」でAが多く記録されています。これは内申点に直接反映される重要な評価です。授業で手を挙げる・ノートをきちんと取る・提出物を期限内に出す、この3つを引き続き大切にしてください。大阪府の公立高校入試では内申点の比重が大きいため、大きな武器になります。
+      </div>
+    </li>
+  </ul>
+</div>
+
+<!-- ⑤ 学習スケジュール -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">5</div>
+    <div class="section-title">中2からの週間学習スケジュール（提案）</div>
+    <div class="section-note">部活終了後・塾継続を前提に</div>
+  </div>
+  <table class="schedule-table">
+    <thead>
+      <tr>
+        <th style="width:80px">曜日</th>
+        <th>放課後〜夜の過ごし方</th>
+        <th style="width:90px">自習時間目安</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="day-cell">月曜日</td>
+        <td><span class="tag tag-s">自習</span>週の始め：国語・社会の暗記復習（教科書音読、漢字練習）</td>
+        <td style="text-align:center;font-weight:700">約 60分</td>
+      </tr>
+      <tr>
+        <td class="day-cell">火曜日</td>
+        <td><span class="tag tag-m">数学塾</span>18:45〜20:05｜帰宅後：社会の語句・年表チェック 30分</td>
+        <td style="text-align:center;font-weight:700">塾＋30分</td>
+      </tr>
+      <tr>
+        <td class="day-cell">水曜日</td>
+        <td><span class="tag tag-s">自習</span>英語の文法復習・英単語10個暗記（最重要）</td>
+        <td style="text-align:center;font-weight:700">約 60〜90分</td>
+      </tr>
+      <tr>
+        <td class="day-cell">木曜日</td>
+        <td><span class="tag tag-m">数学塾</span>18:45〜20:05｜帰宅後：理科の復習 30分</td>
+        <td style="text-align:center;font-weight:700">塾＋30分</td>
+      </tr>
+      <tr>
+        <td class="day-cell">金曜日</td>
+        <td><span class="tag tag-e">英語塾</span>18:55〜20:35｜帰宅後：軽い復習のみ、無理しない</td>
+        <td style="text-align:center;font-weight:700">塾のみ</td>
+      </tr>
+      <tr>
+        <td class="day-cell">土曜日</td>
+        <td><span class="tag tag-s">まとめ</span>苦手科目集中（英語・国語優先）＋英単語チェック。試合ある週は日曜に振替でOK</td>
+        <td style="text-align:center;font-weight:700">約 90〜120分</td>
+      </tr>
+      <tr>
+        <td class="day-cell">日曜日</td>
+        <td><span class="tag tag-r">リカバリー</span>週の遅れを取り戻す日 or しっかり休んでリフレッシュ</td>
+        <td style="text-align:center;font-weight:700">0〜60分</td>
+      </tr>
+    </tbody>
+  </table>
+  <div style="margin-top:0.9rem;padding:0.8rem 1rem;background:var(--gold-light);border:1px solid #e0d08a;border-radius:8px;font-size:0.78rem;color:#6b5800;">
+    💡 <strong>ポイント：</strong>まず「毎日英単語10個」だけでも習慣化することから始めましょう。完璧なスケジュールより、続けられる量で続けることが最も大切です。
+  </div>
+</div>
+
+<!-- ⑥ 合格ロードマップ -->
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">6</div>
+    <div class="section-title">高校合格へのロードマップ</div>
+    <div class="section-note">中2〜中3の目標設定</div>
+  </div>
+  <div class="roadmap">
+    <div class="rm-item">
+      <div class="rm-dot"></div>
+      <div class="rm-period">▶ 今すぐ（春休み中）</div>
+      <div class="rm-title">🌸 英語の基礎を徹底復習・学習習慣をつくる</div>
+      <div class="rm-body">
+        中1英語（be動詞・一般動詞・疑問文・過去形）を完全に復習。塾の先生に「学校の定期テスト対策」を明確にお願いする。毎日の英単語暗記を習慣化する。部活がなくなる春から学習リズムを整えるための最重要期間。
+      </div>
+    </div>
+    <div class="rm-item">
+      <div class="rm-dot w"></div>
+      <div class="rm-period w">▶ 中2・1学期（4月〜7月）― 最初の勝負どころ</div>
+      <div class="rm-title">📈 最初の中間テストで変化を実感する</div>
+      <div class="rm-target">目標：5科合計 250点以上</div>
+      <div class="rm-body">
+        部活がなくなった分の時間を自習に充てる。社会・国語の暗記系で一気に点数アップを狙う。英語が少しでも上向けば、モチベーションが大きく変わる時期。最初の中間テストの結果が今後の方向性を決める重要なテスト。
+      </div>
+    </div>
+    <div class="rm-item">
+      <div class="rm-dot w"></div>
+      <div class="rm-period w">▶ 中2・2学期（9月〜12月）</div>
+      <div class="rm-title">🎯 内申点を意識した学習へ</div>
+      <div class="rm-target">目標：5科合計 270点・内申オール3確保</div>
+      <div class="rm-body">
+        学習リズムが安定してくる時期。主要教科で「4」を1〜2科目取ることを目指す。英語が平均以上（60点超）になれば偏差値が一気に50近くまで上がる可能性がある。授業への積極参加・提出物を丁寧に出す習慣を続ける。
+      </div>
+    </div>
+    <div class="rm-item">
+      <div class="rm-dot g"></div>
+      <div class="rm-period g">▶ 中3・1学期（2026年4月〜）</div>
+      <div class="rm-title">🏆 受験モードへ切り替え</div>
+      <div class="rm-target">目標：5科合計 290点・主要科目に「4」を複数</div>
+      <div class="rm-body">
+        偏差値50を超えると山田高校・履正社ともに現実的な射程に入る。夏休みから過去問演習を開始。ここまで頑張ってきた成果が数字で見えてくる時期。
+      </div>
+    </div>
+    <div class="rm-item">
+      <div class="rm-dot n"></div>
+      <div class="rm-period n">▶ 中3・夏〜受験（2026年秋〜2027年）</div>
+      <div class="rm-title">🎓 高校入試・合格</div>
+      <div class="rm-body">過去問演習・苦手単元の最終仕上げ。内申点が確定する2学期は特に重要。山田高校（公立）・履正社（私立）どちらも視野に入る状態で受験に臨む。</div>
+    </div>
+  </div>
+</div>
+
+<!-- 保護者・駿へのメッセージ -->
+<div class="footer-msg">
+  <h3>保護者の方へ・そして駿へ</h3>
+  <p>
+    現在の成績は平均を下回っており、特に<em>英語の急落</em>が最大の課題です。ただ、これは<em>絶対に取り戻せる数字</em>です。<br><br>
+    通知表を見ると「主体的に学習に取り組む態度」でAが多く、真面目に授業に向き合う姿勢がしっかり評価されています。この姿勢は内申点にも直結する、本物の強みです。<br><br>
+    4月から部活がなくなることは、大きなチャンスです。<em>最初の3ヶ月で学習習慣をしっかり作れれば</em>、山田高校も履正社も十分に届く位置にいます。<br><br>
+    まず今日から、<em>「英語の単語を毎日10個覚える」</em>だけでも始めてみましょう。小さな積み重ねが、2年後の大きな結果につながります。
+  </p>
+</div>
+
+</div><!-- /container -->
+
+<script>
+// 推移グラフ（Canvas 2D API）
+(function(){
+  const canvas = document.getElementById('trendChart');
+  const dpr = window.devicePixelRatio || 1;
+  const W = canvas.parentElement.offsetWidth || 700;
+  const H = 220;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  const PAD = { top: 20, right: 20, bottom: 36, left: 38 };
+  const gW = W - PAD.left - PAD.right;
+  const gH = H - PAD.top - PAD.bottom;
+
+  const labels = ['1学期\n中間', '1学期\n期末', '2学期\n中間', '2学期\n期末', '3学期\n学年末'];
+  const avgs   = [69, 68, 60, 62, 60]; // 各テストの平均（概算）
+
+  const series = [
+    { name:'国語', color:'#1a6bbf', data:[38,49,48,47,38] },
+    { name:'社会', color:'#d35400', data:[34,67,47,51,41] },
+    { name:'数学', color:'#8e44ad', data:[46,40,30,42,47] },
+    { name:'理科', color:'#1e7e4e', data:[43,58,24,42,50] },
+    { name:'英語', color:'#c0392b', data:[82,74,61,44,28] },
+  ];
+
+  const minY = 0, maxY = 100;
+  const yToY = v => PAD.top + gH - (v - minY) / (maxY - minY) * gH;
+  const xAt  = i => PAD.left + i / (labels.length - 1) * gW;
+
+  // グリッド
+  ctx.strokeStyle = '#e5e0d8';
+  ctx.lineWidth = 1;
+  [0,20,40,60,80,100].forEach(v => {
+    const y = yToY(v);
+    ctx.beginPath(); ctx.moveTo(PAD.left, y); ctx.lineTo(PAD.left + gW, y); ctx.stroke();
+    ctx.fillStyle = '#9ca3af'; ctx.font = `${10}px Noto Sans JP,sans-serif`;
+    ctx.textAlign = 'right';
+    ctx.fillText(v, PAD.left - 5, y + 3.5);
+  });
+
+  // 平均線（破線）
+  ctx.save();
+  ctx.setLineDash([4,3]);
+  ctx.strokeStyle = '#b0b8c1';
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  avgs.forEach((v,i) => {
+    const x = xAt(i), y = yToY(v);
+    i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+  ctx.restore();
+
+  // 各科目ライン
+  series.forEach(s => {
+    ctx.beginPath();
+    ctx.strokeStyle = s.color;
+    ctx.lineWidth = 2;
+    s.data.forEach((v,i) => {
+      const x = xAt(i), y = yToY(v);
+      i === 0 ? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    // ドット
+    s.data.forEach((v,i) => {
+      const x = xAt(i), y = yToY(v);
+      ctx.beginPath();
+      ctx.arc(x,y,3.5,0,Math.PI*2);
+      ctx.fillStyle = s.color;
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    });
+  });
+
+  // X軸ラベル
+  ctx.fillStyle = '#6b7280';
+  ctx.font = `10px Noto Sans JP,sans-serif`;
+  ctx.textAlign = 'center';
+  labels.forEach((lb,i) => {
+    const x = xAt(i);
+    const lines = lb.split('\n');
+    lines.forEach((line,j) => {
+      ctx.fillText(line, x, H - PAD.bottom + 14 + j * 13);
+    });
+  });
+
+  // 英語の最高点・最低点に注釈
+  const engData = series[4].data;
+  const ex0 = xAt(0), ey0 = yToY(engData[0]);
+  const ex4 = xAt(4), ey4 = yToY(engData[4]);
+  ctx.fillStyle = '#c0392b';
+  ctx.font = `bold 10px Noto Sans JP,sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.fillText('82点', ex0, ey0 - 8);
+  ctx.fillText('28点', ex4, ey4 - 8);
+})();
+</script>
+</body>
+</html>
